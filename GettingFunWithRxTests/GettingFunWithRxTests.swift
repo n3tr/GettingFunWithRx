@@ -7,9 +7,12 @@
 //
 
 import XCTest
+import RxTest
 @testable import GettingFunWithRx
 
 class GettingFunWithRxTests: XCTestCase {
+    
+    let scheduler = TestScheduler(initialClock: 0)
     
     override func setUp() {
         super.setUp()
@@ -22,8 +25,18 @@ class GettingFunWithRxTests: XCTestCase {
     }
     
     func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        let viewModel = ViewModel()
+        var observer: TestableObserver<String>
+        observer = scheduler.createObserver(String.self)
+        _ = viewModel.currentText.subscribe(observer)
+        
+        XCTAssertEqual(observer.events, [next(0, "0")])
+        
+        viewModel.increaseTapped()
+        XCTAssertEqual(observer.events.last!.value.element!, "1")
+        
+        viewModel.increaseTapped()
+        XCTAssertEqual(observer.events.last!.value.element!, "2")
     }
     
     func testPerformanceExample() {
